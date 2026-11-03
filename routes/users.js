@@ -55,7 +55,7 @@ router.get("/:id", async (req, res) => {
 
     if (select) {
       // fields = JSON.parse(select).join(" ") + " -_id";
-      fields = JSON.parse(select).join(" ");
+      fields = JSON.parse(select);
     } else {
       fields = "";
     }
@@ -70,7 +70,10 @@ router.get("/:id", async (req, res) => {
 
     // CastError
   } catch (error) {
-    res.status(404).json({ message: "User id is invalid" });
+    console.log("GET USER ERROR:", error);
+    return res.status(404).json({
+      message: "User id is invalid",
+    });
   }
 });
 
