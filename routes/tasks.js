@@ -8,7 +8,6 @@ const User = require("../models/user");
 router.get("/", async (req, res) => {
   try {
     // Get tasks based on parameters
-
     // Read from url
     const where = req.query.where;
     const sort = req.query.sort;
@@ -284,12 +283,6 @@ router.put("/:id", async (req, res) => {
         $addToSet: { pendingTasks: updatedTask.id.toString() },
       });
     }
-
-    console.log("UPDATED TASK:", updatedTask);
-    console.log(
-      "SHOULD ADD TO USER:",
-      Boolean(updatedTask.assignedUser && !updatedTask.completed),
-    );
 
     // return the user
     return res

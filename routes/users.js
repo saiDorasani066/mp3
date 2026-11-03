@@ -11,7 +11,6 @@ const Task = require("../models/task");
 router.get("/", async (req, res) => {
   try {
     // Get tasks based on parameters
-
     // Read from url
     const where = req.query.where;
     const sort = req.query.sort;
@@ -63,8 +62,6 @@ router.get("/:id", async (req, res) => {
         .json({ message: "User doesn't exist", data: null });
     }
     res.status(200).json({ message: "OK", data: user });
-
-    // CastError
   } catch (error) {
     return res.status(500).json({
       message: "Internal server error",
@@ -242,7 +239,7 @@ router.put("/:id", async (req, res) => {
       });
     }
 
-    // ipdate names on assigned tasks
+    // update names on assigned tasks
     await Task.updateMany(
       { assignedUser: user.id },
       { $set: { assignedUserName: req.body.name } },
