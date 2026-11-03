@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
       skipAmt = Number(skip);
     }
     let maxAmtResults = 100;
-    if (!(maxAmtResults === undefined)) {
+    if (limit !== undefined) {
       maxAmtResults = Number(limit);
     }
     if (count == "true") {
@@ -52,7 +52,8 @@ router.get("/:id", async (req, res) => {
     const select = req.query.select;
 
     if (select) {
-      fields = JSON.parse(select);
+      // fields = JSON.parse(select).join(" ") + " -_id";
+      fields = JSON.parse(select).join(" ");
     } else {
       fields = "";
     }
