@@ -32,7 +32,7 @@ router.get("/", async (req, res) => {
 
     if (count == "true") {
       const total = await User.countDocuments(filter);
-      return res.status(200).json(total);
+      return res.status(200).json({ message: "OK", data: total });
     }
 
     // retrieve docs from users collection
@@ -42,7 +42,7 @@ router.get("/", async (req, res) => {
       .skip(skipAmt)
       .limit(limit === undefined ? 0 : Number(limit));
 
-    res.json(users);
+    res.json({ message: "OK", data: users });
   } catch (error) {
     res.status(500).json({ message: "Error getting user" });
   }
@@ -51,7 +51,6 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const select = req.query.select;
-
     const fields = select ? JSON.parse(select) : {};
 
     // retrieve docs from users collection
@@ -63,7 +62,7 @@ router.get("/:id", async (req, res) => {
         .status(404)
         .json({ message: "User doesn't exist", data: null });
     }
-    res.status(200).json(user);
+    res.status(200).json({ message: "OK", data: user });
 
     // CastError
   } catch (error) {

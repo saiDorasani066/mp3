@@ -268,8 +268,8 @@ router.put("/:id", async (req, res) => {
         name: req.body.name,
         description: req.body.description,
         deadline: req.body.deadline,
-        completed: req.body.completed,
-        assignedUser: req.body.assignedUser,
+        completed: req.body.completed ?? false,
+        assignedUser: req.body.assignedUser || "",
         assignedUserName: assignedName,
       },
       {
@@ -284,6 +284,12 @@ router.put("/:id", async (req, res) => {
         $addToSet: { pendingTasks: updatedTask.id.toString() },
       });
     }
+
+    console.log("UPDATED TASK:", updatedTask);
+    console.log(
+      "SHOULD ADD TO USER:",
+      Boolean(updatedTask.assignedUser && !updatedTask.completed),
+    );
 
     // return the user
     return res
