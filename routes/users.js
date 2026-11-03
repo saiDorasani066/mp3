@@ -79,6 +79,7 @@ router.post("/", async (req, res) => {
     const user = new User({
       name: req.body.name,
       email: req.body.email,
+      pendingTasks: req.body.pendingTasks,
     });
 
     // Error Handling
@@ -91,11 +92,31 @@ router.post("/", async (req, res) => {
     // Duplicate user email
     const exisitingEmail = await User.findOne({ email: req.body.email });
     if (exisitingEmail) {
-      res.status(400).json({ message: "Email already exists", data: null });
+      return res
+        .status(400)
+        .json({ message: "Email already exists", data: null });
     }
 
     // save to mongodb
     await user.save();
+
+    for (const taskId of user.pendingTasks) {
+      const task = await Task.findById(taskId);
+
+      // remove task from previous user pendingTasks
+      if (task && !task.completed) {
+        if (task.assignedUser) {
+          await User.findByIdAndUpdate(task.assignedUser, {
+            $pull: { pendingTasks: taskId },
+          });
+        }
+        // Assign task to current user
+        await Task.findByIdAndUpdate(taskId, {
+          assignedUser: user.id,
+          assignedUserName: user.name,
+        });
+      }
+    }
 
     // return the user
     return res.status(201).json({
@@ -109,8 +130,19 @@ router.post("/", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   try {
-    // retrieve docs from users collection
-    const deletedUser = await User.findByIdAndDelete(req.params.id);
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User doesn't exist",
+        data: null,
+      });
+    }
+
+    await Task.updateMany(
+      { assignedUser: user.id },
+      { $set: { assignedUserName: "", assignedUserName: "unassigned" } },
+    );
 
     // Error handling
     if (deletedUser == null) {
@@ -242,7 +274,7 @@ router.put("/:id", async (req, res) => {
       });
     }
 
-    // ipdate names on assigned tasks
+    // update names on assigned tasks
     await Task.updateMany(
       { assignedUser: user.id },
       { $set: { assignedUserName: req.body.name } },
