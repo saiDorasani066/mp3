@@ -50,29 +50,26 @@ router.get("/", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   try {
-    let fields;
     const select = req.query.select;
 
-    if (select) {
-      // fields = JSON.parse(select).join(" ") + " -_id";
-      fields = JSON.parse(select);
-    } else {
-      fields = "";
-    }
+    const fields = select ? JSON.parse(select) : {};
+
     // retrieve docs from users collection
     const user = await User.findById(req.params.id).select(fields);
 
     // Error handling
     if (user == null) {
-      return res.status(404).json({ message: "User doesn't exist" });
+      return res
+        .status(404)
+        .json({ message: "User doesn't exist", data: null });
     }
     res.status(200).json(user);
 
     // CastError
   } catch (error) {
-    console.log("GET USER ERROR:", error);
-    return res.status(404).json({
-      message: "User id is invalid",
+    return res.status(500).json({
+      message: "Internal server error",
+      data: null,
     });
   }
 });

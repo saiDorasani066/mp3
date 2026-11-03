@@ -31,7 +31,7 @@ router.get("/", async (req, res) => {
     }
     if (count == "true") {
       const total = await Task.countDocuments(filter);
-      return res.status(200).json(total);
+      return res.status(200).json({ message: "OK", data: total });
     }
 
     const tasks = await Task.find(filter)
@@ -40,7 +40,7 @@ router.get("/", async (req, res) => {
       .skip(skipAmt)
       .limit(maxAmtResults);
 
-    res.status(200).json(tasks);
+    res.status(200).json({ message: "OK", data: tasks });
   } catch (error) {
     res.status(500).json({ message: "Error getting tasks" });
   }
@@ -48,28 +48,23 @@ router.get("/", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   try {
-    let fields;
     const select = req.query.select;
-
-    if (select) {
-      // fields = JSON.parse(select).join(" ") + " -_id";
-      fields = JSON.parse(select).join(" ");
-    } else {
-      fields = "";
-    }
+    const fields = select ? JSON.parse(select) : {};
 
     // retrieve docs from users collection
     const task = await Task.findById(req.params.id).select(fields);
 
     // Error handling
     if (task == null) {
-      return res.status(404).json({ message: "Task doesn't exist" });
+      return res
+        .status(404)
+        .json({ message: "Task doesn't exist", data: null });
     }
 
-    res.status(200).json(task);
+    res.status(200).json({ message: "OK", data: task });
     // CastError
   } catch (error) {
-    res.status(404).json({ message: "Invalid task id" });
+    res.status(500).json({ message: "Internal server error", data: null });
   }
 });
 
